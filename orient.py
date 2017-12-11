@@ -5,13 +5,18 @@ Created on Sat Dec 09 17:14:01 2017
 
 @author: snehal vartak
 
+This code call the appropriate algorithm based on the input arguments.
+For Neural Network and Best algorithm, it calls the training/test functions from the neuralnet.py file
+
 """
 import sys
 import time
 import neuralnet
 import random 
 
-random.seed(1)
+random.seed(100)
+
+
 if len(sys.argv) != 5:
     print ("Incorrect Number of Arguments")
 else:
@@ -47,9 +52,10 @@ else:
             train_data, train_data_names = neuralnet.read_file(input_data_file)   
             #SET TRAINING PARAMETERS
             NUM_IN_NODES = 192
-            NUM_HIDDEN_NODES = 5
+            NUM_HIDDEN_NODES = 35
             NUM_OUTPUT_NODES = 4
-            LEARNING_RATE = 0.6
+            LEARNING_RATE = 0.5
+
             print("Training neural network...")
             start_training = time.time()
             hidden_weights, output_weights = neuralnet.trainNeuralNet(train_data, NUM_IN_NODES, NUM_HIDDEN_NODES, NUM_OUTPUT_NODES, LEARNING_RATE)
@@ -70,10 +76,30 @@ else:
             
     elif algorithm == "best":
         if train_test== "train":
-            print("Train the best classifier")
-            
+            print("Reading the training data...")
+            train_data, train_data_names = neuralnet.read_file(input_data_file)   
+            #SET TRAINING PARAMETERS
+            NUM_IN_NODES = 192
+            NUM_HIDDEN_NODES = 35
+            NUM_OUTPUT_NODES = 4
+            LEARNING_RATE = 0.5
+
+            print("Training best classifier - neural network...")
+            start_training = time.time()
+            hidden_weights, output_weights = neuralnet.trainNeuralNet(train_data, NUM_IN_NODES, NUM_HIDDEN_NODES, NUM_OUTPUT_NODES, LEARNING_RATE)
+            print( "Training time: -- " + str(time.time()-start_training))
+            print("Output the model to file...")
+            neuralnet.dumpModel(model_file_name,hidden_weights, output_weights,NUM_IN_NODES, NUM_HIDDEN_NODES, NUM_OUTPUT_NODES)
+            print("Done!")
         elif train_test == "test":
-            print ("Testing the best classifier")
-            
+            print("Reading the test data...")
+            test_data, test_data_names = neuralnet.read_file(input_data_file)
+            print("Loading the best model and testing it...")
+            start_test = time.time()
+            neuralnet.testNeuralNet(model_file_name,test_data,test_data_names)
+            print( "Test time: -- " + str(time.time()-start_test))
+            print("Done")
+        else:
+            print("Invalid input arguments")            
     else:
         print ("Invalid algorithm")

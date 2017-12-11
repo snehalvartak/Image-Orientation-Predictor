@@ -2,7 +2,7 @@
 """
 Created on Sat Dec 09 13:34:57 2017
 
-@author: sneha
+@author: snehal vartak
 """
 from __future__ import division
 import numpy as np
@@ -46,15 +46,16 @@ def derv(data):
 def trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning_rate):
     ## Initialize the weights for the hidden layer and output layer with random values between 0 and 1
     input_nodes += 1 
-    hidden_weights  = [[random.uniform(-1,1) for i in range(hidden_nodes)] for j in range(input_nodes)]
-    output_weights = [[random.uniform(-1,1) for i in range(output_nodes)] for j in range(hidden_nodes)]
+    hidden_weights  = [[random.uniform(-0.1,0.1) for i in range(hidden_nodes)] for j in range(input_nodes)]
+    output_weights = [[random.uniform(-0.1,0.1) for i in range(output_nodes)] for j in range(hidden_nodes)]
     
     train_data = train_data
     error_count  = 0
     #print len(hidden_weights)
     #print len(output_weights)
     # Iterate over each example and update the weights based on error
-    for k in range(18526):
+    # Here I have set the value to 24701 as I am taking approximately 2/3 of the train data to train the weights
+    for k in range(int(round(len(train_data)*2/3))):
         features = train_data[k][0]
         label = train_data[k][1]
         hidden_layer = []
@@ -77,17 +78,14 @@ def trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning
         if (output_layer.index(max(output_layer)) != label.index(max(label))):
             error_count += 1
         #output_file.append(output_layer.index(max(output_layer))*90)
+
+
         ## Calulcate the error and backpropogate
         output_deltas = []
         hidden_deltas = []
         for i in range(output_nodes):
             error =  label[i] - output_layer[i]
-            output_deltas.append(error * derv(output_layer[i]))
-            
-        #Update output weights
-        for i in range(hidden_nodes):
-            for j in range(output_nodes):
-                output_weights[i][j]+= (learning_rate * output_deltas[j] * hidden_layer[i])
+            output_deltas.append(error * derv(output_layer[i]))  
         
         #Calculate hidden layer deltas
         for i in range(hidden_nodes):
@@ -95,7 +93,11 @@ def trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning
             for j in range(output_nodes):
                 hidden_error += output_deltas[j]* output_weights[i][j]
             hidden_deltas.append(hidden_error *  derv(hidden_layer[i])) 
-        # Update the hidden layer weights
+        #Update output weights
+        for i in range(hidden_nodes):
+            for j in range(output_nodes):
+                output_weights[i][j]+= (learning_rate * output_deltas[j] * hidden_layer[i])
+        #Update the hidden layer weights
         for i in range(input_nodes):
             for j in range(hidden_nodes):
                 hidden_weights[i][j] += (learning_rate * hidden_deltas[j]* features[i])
