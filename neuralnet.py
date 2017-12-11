@@ -3,13 +3,38 @@
 Created on Sat Dec 09 13:34:57 2017
 
 @author: snehal vartak
+
+The design decision are detailed in the report document.
+
+This file defines 5 main functions for neural network including a function to read input file:
+
+1. read_file() - This function takes input as the file name, reads the training or test data file and outputs two parameters
+Output parameter -- training [[list of features,orientation],[list of features,orientation] ..]
+and names : which is a list of image names from the input file
+
+2. trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning_rate):
+This function trains the neural network given the parameters. 
+The weights are updated after each example, i.e Stochastic gradient descent method is implemented here.
+Due to large sample data, multiple iterations were not rquired to get optimal values
+Referred from http://adventuresinmachinelearning.com/neural-networks-tutorial/#the-feed-forward-pass
+
+3. testNeuralNet(model_file_name, algorithm, test_data, test_data_names):
+Will predict the output given the test data and model file that was saved from the training stage
+
+4. dumpModel - will write the learned parameters to a text file for later use
+
+5. loadModel - will load the previously learned parameters from text file for testing
+
+
 """
+
+
 from __future__ import division
 import numpy as np
 import math
 import random
 
-random.seed(2)
+random.seed(100)
 def read_file(filename):
     f = open(filename,'r')
     lines = f.readlines()
@@ -46,8 +71,8 @@ def derv(data):
 def trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning_rate):
     ## Initialize the weights for the hidden layer and output layer with random values between 0 and 1
     input_nodes += 1 
-    hidden_weights  = [[random.uniform(-0.1,0.1) for i in range(hidden_nodes)] for j in range(input_nodes)]
-    output_weights = [[random.uniform(-0.1,0.1) for i in range(output_nodes)] for j in range(hidden_nodes)]
+    hidden_weights  = [[random.uniform(-1,1) for i in range(hidden_nodes)] for j in range(input_nodes)]
+    output_weights = [[random.uniform(-1,1) for i in range(output_nodes)] for j in range(hidden_nodes)]
     
     train_data = train_data
     error_count  = 0
@@ -55,7 +80,7 @@ def trainNeuralNet(train_data, input_nodes, hidden_nodes, output_nodes, learning
     #print len(output_weights)
     # Iterate over each example and update the weights based on error
     # Here I have set the value to 24701 as I am taking approximately 2/3 of the train data to train the weights
-    for k in range(int(round(len(train_data)*2/3))):
+    for k in range(24701):
         features = train_data[k][0]
         label = train_data[k][1]
         hidden_layer = []
@@ -149,12 +174,15 @@ def loadModel(filename):
     return model_input_nodes, model_output_nodes, model_hidden_nodes, model_hidden_weights, model_output_weights
 
 
-def testNeuralNet(model_file_name, test_data, test_data_names):
+def testNeuralNet(model_file_name, algorithm, test_data, test_data_names):
     
     model_input_nodes, model_output_nodes, model_hidden_nodes, model_hidden_weights, model_output_weights = loadModel(model_file_name)
     # Cretae a confusion matrix where each index from 0 to 3 corresponds to angles 0, 90, 180, 270 respectively
     confusion_matrix = [[0 for i in range(4)] for j in range(4)]
-    output_file = "nnet_output.txt"
+    if algorithm == 'best':
+        output_file = "best_output.txt"
+    if algorithm == 'nnet':
+        output_file = "nnet_output.txt"
     f = open(output_file,'w')
     correct_count = 0
      # Iterate over each example and update the weights based on error
